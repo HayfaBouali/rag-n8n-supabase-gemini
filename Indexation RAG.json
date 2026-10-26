@@ -1,0 +1,187 @@
+{
+  "name": "Indexation RAG",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -176
+      ],
+      "id": "8ac97ac1-e332-46be-af9b-481eabfba7f0",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value":     " VOTRE_FICHIER",
+          "mode": "list",
+          "cachedResultName": "Chapitre 1 · LLM et fondements du RAG.pdf",
+             "cachedResultUrl": "https://drive.google.com/file/d/VOTRE_FICHIER/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -128,
+        -176
+      ],
+      "id": "a248dcf3-2d1b-47de-ace3-5b471ff5be94",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "zqdKrwaAJFn4CL9H",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        -176
+      ],
+      "id": "d8713d1e-ee0e-4a4c-b3d1-5030bbd5e44c",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "aWfBxS8ao03rB9WW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        64
+      ],
+      "id": "3b7cb21c-e621-44a9-b876-137ca6155f49",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rziW8u1GhLXcAHZH",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        16
+      ],
+      "id": "188cefec-0d8a-4761-90e8-3663930da915",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 150,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        272,
+        192
+      ],
+      "id": "39ffee14-8cfe-4baa-97f3-af4d41078db8",
+      "name": "Recursive Character Text Splitter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "13652132-45a8-47de-b6c8-7347f28c72c7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9785fbddc22996971b85ba04c7a4e6bdfc399723022a103d4d4fce0b274a2b2e"
+  },
+  "nodeGroups": [],
+  "id": "Ieb3a3sQ9cAnWmWO",
+  "tags": []
+}

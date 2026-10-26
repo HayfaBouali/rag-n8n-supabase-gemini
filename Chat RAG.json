@@ -1,0 +1,181 @@
+{
+  "name": "Chat RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -432,
+        -128
+      ],
+      "id": "308dc8fa-f1f1-492c-a396-f8983fe668e1",
+      "name": "When chat message received",
+      "webhookId": "7d02af13-57a3-4734-8ee1-80e11e4909cd"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Tu es un assistant pédagogique. Tu réponds uniquement à partir des documents de la base documentaire, en utilisant l'outil rechercher_documents. Si l'information n'est pas dans les documents, réponds exactement : « Je n'ai pas trouvé cette information dans les documents. » N'invente rien."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -96,
+        -128
+      ],
+      "id": "719ade01-6edf-4252-8d51-a32ddb0d7abc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        96
+      ],
+      "id": "9f834d55-e638-41c1-9f96-dcfc6dc369fe",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rziW8u1GhLXcAHZH",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -64,
+        112
+      ],
+      "id": "070570df-a08a-40c0-bc5f-a35bd648de36",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "  Recherche des informations dans les documents PDF indexés dans la base documentaire. Utilise cet outil lorsqu'une question nécessite des informations provenant des documents.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        96
+      ],
+      "id": "3ee5c943-1fba-4961-9ffe-7a11ea02e04b",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "aWfBxS8ao03rB9WW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        144,
+        208
+      ],
+      "id": "2044a110-93e9-45b5-94f5-b2f28b9d91af",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rziW8u1GhLXcAHZH",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "877acaec-6a32-43af-b262-87c0b8eaacac",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9785fbddc22996971b85ba04c7a4e6bdfc399723022a103d4d4fce0b274a2b2e"
+  },
+  "nodeGroups": [],
+  "id": "6MdpdGVumAUJvHQ7",
+  "tags": []
+}
